@@ -80,5 +80,5 @@ module Domain =
         { Box = box; Value = value }
     
     let pureSpin () = spin rng mapToBox mapToValue 
-    let spinWithNearMisses () = spin rng mapToBoxWithNearMisses mapToValueWithHouseEdge 
+    let moreRealisticSpin () = spin rng mapToBoxWithNearMisses mapToValueWithHouseEdge 
 

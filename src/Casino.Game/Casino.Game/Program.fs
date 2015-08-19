@@ -42,7 +42,7 @@ module Program =
         | Lose -> youLost()
 
     let rec start (shouldContinue : unit -> bool) =
-        spinWithNearMisses() |> render
+        moreRealisticSpin() |> render
 
         if shouldContinue() then 
             start shouldContinue
@@ -81,7 +81,7 @@ module Program =
         printfn ""  
         
         pureSpin |> distribution "Pure spin" 1000000
-        spinWithNearMisses |> distribution "Spin with near misses" 1000000
+        moreRealisticSpin |> distribution "Realistic spin" 1000000
 
         start (fun () ->
             Console.WriteLine()
