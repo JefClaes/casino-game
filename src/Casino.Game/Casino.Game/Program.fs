@@ -70,7 +70,26 @@ module Program =
                 let box, percentage = element
                 Console.ForegroundColor <- systemColor box               
                 printfn "%A = %A%%" box percentage
-                Console.ResetColor()     
+                Console.ResetColor()    
+
+    let forceHouseEdge desc times (spin:unit->SpinResult) =
+        printfn ""
+        printfn desc
+        printfn ""
+
+        let stake = 1M
+
+        let bets = decimal times * stake
+        let wins =         
+            [ 1 .. times ]
+            |> Seq.map (fun _ -> spin())
+            |> Seq.choose (fun x -> 
+                match x.Value with 
+                | Win factor -> Some factor
+                | _ -> None)
+            |> Seq.sumBy (fun f -> stake * f)
+        
+        printfn "House edge = %A" <| bets / wins
 
     let houseEdge oddsOfWinning winnings oddsOfLosing stake =            
         let ( x : decimal ) = oddsOfWinning * winnings - oddsOfLosing * stake
@@ -79,18 +98,23 @@ module Program =
     [<EntryPoint>]
     let main argv = 
         printfn ""  
+
+        let times = 100000
+      
+        pureSpin |> forceHouseEdge "Pure spin" times
+        moreRealisticSpin |> forceHouseEdge "Realistic spin" times
         
-        pureSpin |> distribution "Pure spin" 1000000
-        moreRealisticSpin |> distribution "Realistic spin" 1000000
-
-        start (fun () ->
-            Console.WriteLine()
-            Console.WriteLine("Go again?")            
-            Console.ReadLine() = "yes!")                                 
-
-        printfn ""
-
-        houseEdge ( 1M / 6M ) 4M ( 5M / 6M ) 1M  |> printfn "House edge = %A"        
+        pureSpin |> distribution "Pure spin" times
+        moreRealisticSpin |> distribution "Realistic spin" times
+      
+//        start (fun () ->
+//            Console.WriteLine()
+//            Console.WriteLine("Go again?")            
+//            Console.ReadLine() = "yes!")                                 
+//
+//        printfn ""
+//
+//        houseEdge ( 1M / 6M ) 4M ( 5M / 6M ) 1M  |> printfn "House edge = %A"        
 
         Console.ReadLine() |> ignore
 

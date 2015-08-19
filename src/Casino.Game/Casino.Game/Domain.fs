@@ -35,8 +35,9 @@ module Domain =
 
     let boxes = [ Yellow; Green; Red; Blue; White; Purple ]   
 
+    let rnd = new System.Random()
+
     let rng () =         
-        let rnd = new System.Random()
         let n = rnd.Next(1, 7)        
 
         match n with
