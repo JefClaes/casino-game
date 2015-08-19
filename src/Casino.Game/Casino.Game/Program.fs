@@ -80,7 +80,7 @@ module Program =
     let main argv = 
         printfn ""  
         
-        spinWithoutNearMisses |> distribution "Spin without near misses" 1000000
+        pureSpin |> distribution "Pure spin" 1000000
         spinWithNearMisses |> distribution "Spin with near misses" 1000000
 
         start (fun () ->
