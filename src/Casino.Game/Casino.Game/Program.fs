@@ -56,29 +56,31 @@ module Program =
 
     let pct x y = float x / float y * float 100        
 
-    let distribution desc times (spin:unit->SpinResult) =    
-        printfn ""
-        printfn desc
-        printfn ""
-
+    let distribution times (spin:unit->SpinResult) =    
         [ 1 .. times ] 
         |> Seq.map (fun _ -> spin()) 
         |> Seq.countBy (fun result -> result.Box)
-        |> Seq.map (fun (k, v) -> (k, pct v times))  
-        |> fun distribution -> 
-            for element in distribution do
-                let box, percentage = element
-                Console.ForegroundColor <- systemColor box               
-                printfn "%A = %A%%" box percentage
-                Console.ResetColor()    
-
-    let forceHouseEdge desc times (spin:unit->SpinResult) =
+        |> Seq.map (fun (k, v) -> (k, pct v times))        
+        
+    let printDistribution desc distribution =
         printfn ""
-        printfn desc
+        printfn "Distribution: %s" desc
         printfn ""
 
+        for element in distribution do
+            let box, percentage = element
+            Console.ForegroundColor <- systemColor box               
+            printfn "%A = %A%%" box percentage
+            Console.ResetColor()    
+            
+    let printHouseEdge desc houseEdge =
+        printfn ""
+        printfn "HouseEdge: %s" desc
+        printfn ""
+        printfn "%A" houseEdge
+
+    let forceHouseEdge times (spin:unit->SpinResult) =      
         let stake = 1M
-
         let bets = decimal times * stake
         let wins =         
             [ 1 .. times ]
@@ -89,10 +91,10 @@ module Program =
                 | _ -> None)
             |> Seq.sumBy (fun f -> stake * f)
         
-        printfn "House edge = %A" <| bets / wins
+        bets / wins
 
     let houseEdge oddsOfWinning winnings oddsOfLosing stake =            
-        let ( x : decimal ) = oddsOfWinning * winnings - oddsOfLosing * stake
+        let x : decimal = oddsOfWinning * winnings - oddsOfLosing * stake
         Math.Round(x, 2)
 
     [<EntryPoint>]
@@ -101,11 +103,21 @@ module Program =
 
         let times = 100000
       
-        pureSpin |> forceHouseEdge "Pure spin" times
-        moreRealisticSpin |> forceHouseEdge "Realistic spin" times
+        pureSpin 
+        |> forceHouseEdge times 
+        |> printHouseEdge "Pure spin"
+
+        moreRealisticSpin 
+        |> forceHouseEdge times 
+        |> printHouseEdge "More realistic spin"
         
-        pureSpin |> distribution "Pure spin" times
-        moreRealisticSpin |> distribution "Realistic spin" times
+        pureSpin 
+        |> distribution times 
+        |> printDistribution "Pure spin"
+        
+        moreRealisticSpin 
+        |> distribution times 
+        |> printDistribution "More Realistic spin"
       
 //        start (fun () ->
 //            Console.WriteLine()

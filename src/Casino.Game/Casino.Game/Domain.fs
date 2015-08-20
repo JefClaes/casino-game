@@ -47,7 +47,7 @@ module Domain =
         | 4 -> Num4
         | 5 -> Num5
         | 6 -> Num6
-        | _ -> failwith "Random number could not be mapped"
+        | _ -> failwith "Random number could not be matched"
 
     let mapToBox rnd =   
         match rnd with
