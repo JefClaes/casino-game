@@ -21,6 +21,13 @@ module Program =
 
         Console.ResetColor()                    
 
+    let drawEmptyBox box =         
+        Console.ForegroundColor <- systemColor box
+            
+        printf "[ ] "
+
+        Console.ResetColor()
+
     let youLost () = printfn "Unlucky, you lost."
     let youWon factor = printfn "You won your stake x %A" factor
 
@@ -45,14 +52,7 @@ module Program =
         moreRealisticSpin() |> render
 
         if shouldContinue() then 
-            start shouldContinue
-
-    let drawEmptyBox box =         
-        Console.ForegroundColor <- systemColor box
-            
-        printf "[ ] "
-
-        Console.ResetColor()
+            start shouldContinue 
 
     let pct x y = float x / float y * float 100        
 
@@ -91,9 +91,9 @@ module Program =
                 | _ -> None)
             |> Seq.sumBy (fun f -> stake * f)
         
-        bets / wins
+        Math.Round(bets / wins, 2)
 
-    let houseEdge oddsOfWinning winnings oddsOfLosing stake =            
+    let theoreticalHouseEdge oddsOfWinning winnings oddsOfLosing stake =            
         let x : decimal = oddsOfWinning * winnings - oddsOfLosing * stake
         Math.Round(x, 2)
 
@@ -119,14 +119,18 @@ module Program =
         |> distribution times 
         |> printDistribution "More Realistic spin"
       
-//        start (fun () ->
-//            Console.WriteLine()
-//            Console.WriteLine("Go again?")            
-//            Console.ReadLine() = "yes!")                                 
-//
-//        printfn ""
-//
-//        houseEdge ( 1M / 6M ) 4M ( 5M / 6M ) 1M  |> printfn "House edge = %A"        
+        printfn ""
+
+        theoreticalHouseEdge ( 1M / 6M ) 5M ( 5M / 6M ) 1M  
+        |> printHouseEdge "Pure spin (theoretical)"        
+
+        theoreticalHouseEdge ( 1M / 6M ) 4M ( 5M / 6M ) 1M  
+        |> printHouseEdge "More realistic spin (theoretical)"   
+
+        start (fun () ->
+            Console.WriteLine()
+            Console.WriteLine("Go again?")            
+            Console.ReadLine() = "yes!")                                       
 
         Console.ReadLine() |> ignore
 
