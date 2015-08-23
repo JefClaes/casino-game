@@ -22,7 +22,7 @@ module Math =
                 | _ -> None)
             |> Seq.sumBy (fun f -> stake * f)
         
-        if (wins = 0M) then
+        if wins = 0M then
             1M
         else
             System.Math.Round(bets / wins, 2)
@@ -38,7 +38,7 @@ module Math =
                 | _ -> None)
             |> Seq.sumBy (fun f -> stake * f)
         
-        if (bets = 0M) then
+        if bets = 0M then
             1M
         else
             System.Math.Round(wins / bets, 2)
