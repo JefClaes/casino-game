@@ -20,7 +20,7 @@ module Program =
             
         printf "[%s] " <| match hit with | true -> "X" | false -> " "
 
-        Console.ResetColor()                    
+        Console.ResetColor()                        
 
     let drawEmptyBox box =         
         Console.ForegroundColor <- systemColor box
@@ -28,6 +28,9 @@ module Program =
         printf "[ ] "
 
         Console.ResetColor()
+
+    let drawEmptyBoxes () = 
+        boxes |> Seq.iter (fun box -> drawEmptyBox box)
 
     let youLost () = printfn "Unlucky, you lost."
     let youWon factor = printfn "You won your stake x %A" factor
@@ -66,17 +69,33 @@ module Program =
             printfn "%A = %A%%" box percentage
             Console.ResetColor()    
             
-    let printHouseEdge desc houseEdge =
+    let printHouseEdge desc (houseEdge:decimal) =       
         printfn ""
         printfn "HouseEdge: %s" desc
         printfn ""
-        printfn "%A" houseEdge 
+        
+        if houseEdge <= 0M then
+            Console.ForegroundColor <- ConsoleColor.Red
+        else
+            Console.ForegroundColor <- ConsoleColor.Green
 
-    let printPayout desc payout =
+        printfn "%A" <| Math.Round(houseEdge, 4)
+
+        Console.ResetColor()
+
+    let printPayout desc (payout:decimal) =
         printfn ""
         printfn "Payout: %s" desc
         printfn ""
-        printfn "%A" payout 
+
+        if payout <= 1M then
+            Console.ForegroundColor <- ConsoleColor.Red
+        else
+            Console.ForegroundColor <- ConsoleColor.Green
+
+        printfn "%A" <| Math.Round(payout, 4)
+
+        Console.ResetColor()
 
     let run times f =
         [ 1 .. times ] 
@@ -88,12 +107,14 @@ module Program =
 
     [<EntryPoint>]
     let main argv = 
+        drawEmptyBoxes()
+
         printfn ""  
 
-        let times = 100000
+        let times = 3000000
         let pureSpinResults = run times pureSpin
-        let moreRealisticSpinResults = run 100000 moreRealisticSpin
-      
+        let moreRealisticSpinResults = run times moreRealisticSpin     
+        
         pureSpinResults 
         |> p (fun x -> x |> houseEdge |> printHouseEdge "Pure spin")
         |> p (fun x -> x |> payout |> printPayout "Pure spin")

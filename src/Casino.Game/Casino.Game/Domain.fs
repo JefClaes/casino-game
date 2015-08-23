@@ -17,23 +17,25 @@ module Domain =
         | Num4 
         | Num5 
         | Num6 
-
+ 
     type BoxValue = 
         | Win of WinFactor 
         | Lose  
-    and WinFactor = decimal
+    and WinFactor = decimal  
 
     type SpinResult = { 
         Box : Box 
         Value : BoxValue
     }         
 
+    type Spin = unit -> SpinResult
     type RNG = unit -> RandomNumber
     type MapToBox = RandomNumber -> Box
-    type MapToValue = Box -> BoxValue      
-    type Spin = unit -> SpinResult
+    type MapToValue = Box -> BoxValue          
 
     let boxes = [ Yellow; Green; Red; Blue; White; Purple ]   
+
+    let outOfRange n = invalidArg "n" <| sprintf "value was %i" n
 
     let rnd = new System.Random()
 
@@ -47,7 +49,7 @@ module Domain =
         | 4 -> Num4
         | 5 -> Num5
         | 6 -> Num6
-        | _ -> failwith "Random number could not be matched"
+        | _ -> outOfRange n
 
     let mapToBox rnd =   
         match rnd with
@@ -74,12 +76,20 @@ module Domain =
         | Num3 -> Red
         | Num4 | Num5 | Num6 -> Blue    
 
+    // (unit -> 'a) -> ('a -> Box) -> (Box -> BoxValue) -> SpinResult
     let spin rng mapToBox mapToValue =                           
         let box = rng() |> mapToBox
         let value = box |> mapToValue                       
         
         { Box = box; Value = value }
     
-    let pureSpin : Spin = fun() -> spin rng mapToBox mapToValue 
-    let moreRealisticSpin : Spin = fun() -> spin rng mapToBoxWithNearMisses mapToValueWithHouseEdge 
+    let pureSpin : Spin = 
+        fun() -> spin rng mapToBox mapToValue 
+
+    let moreRealisticSpin : Spin = 
+        fun() -> 
+            spin 
+                rng 
+                mapToBoxWithNearMisses 
+                mapToValueWithHouseEdge 
 

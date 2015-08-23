@@ -9,39 +9,30 @@ module Math =
     let distribution results =    
         results
         |> Seq.countBy (fun result -> result.Box)
-        |> Seq.map (fun (box, count) -> (box, pct count <| Seq.length results))       
+        |> Seq.map (fun (box, count) -> 
+            (box, pct count <| Seq.length results))       
+        
+    let totalBets results =
+        decimal (results |> Seq.length) * 1M
+
+    let totalWins results =
+        results
+            |> Seq.choose (fun x -> 
+                match x.Value with 
+                | Win factor -> Some factor
+                | _ -> None)
+            |> Seq.sumBy (fun f -> 1M * f)  
+        
+    let payout results =      
+        let bets = totalBets results
+        let wins = totalWins results     
+        
+        match bets with
+        | 0M -> 1M
+        | _ -> wins / bets                
         
     let houseEdge results =      
-        let stake = 1M
-        let bets = decimal (results |> Seq.length) * stake
-        let wins =         
-            results
-            |> Seq.choose (fun x -> 
-                match x.Value with 
-                | Win factor -> Some factor
-                | _ -> None)
-            |> Seq.sumBy (fun f -> stake * f)
-        
-        if wins = 0M then
-            1M
-        else
-            System.Math.Round(bets / wins, 2)
-
-    let payout results =      
-        let stake = 1M
-        let bets = decimal (results |> Seq.length) * stake
-        let wins =         
-            results
-            |> Seq.choose (fun x -> 
-                match x.Value with 
-                | Win factor -> Some factor
-                | _ -> None)
-            |> Seq.sumBy (fun f -> stake * f)
-        
-        if bets = 0M then
-            1M
-        else
-            System.Math.Round(wins / bets, 2)
+        1M - payout results            
 
     let theoreticalHouseEdge oddsOfWinning winnings oddsOfLosing stake =            
         let x : decimal = oddsOfWinning * winnings - oddsOfLosing * stake
