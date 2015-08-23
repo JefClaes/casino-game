@@ -2,6 +2,7 @@
 
 open System
 open Casino.Game.Domain
+open Casino.Game.Math
 
 module Program =
 
@@ -52,15 +53,7 @@ module Program =
         moreRealisticSpin() |> render
 
         if shouldContinue() then 
-            start shouldContinue 
-
-    let pct x y = float x / float y * float 100        
-
-    let distribution times (spin:unit->SpinResult) =    
-        [ 1 .. times ] 
-        |> Seq.map (fun _ -> spin()) 
-        |> Seq.countBy (fun result -> result.Box)
-        |> Seq.map (fun (k, v) -> (k, pct v times))        
+            start shouldContinue     
         
     let printDistribution desc distribution =
         printfn ""
@@ -77,47 +70,39 @@ module Program =
         printfn ""
         printfn "HouseEdge: %s" desc
         printfn ""
-        printfn "%A" houseEdge
+        printfn "%A" houseEdge 
 
-    let forceHouseEdge times (spin:unit->SpinResult) =      
-        let stake = 1M
-        let bets = decimal times * stake
-        let wins =         
-            [ 1 .. times ]
-            |> Seq.map (fun _ -> spin())
-            |> Seq.choose (fun x -> 
-                match x.Value with 
-                | Win factor -> Some factor
-                | _ -> None)
-            |> Seq.sumBy (fun f -> stake * f)
-        
-        Math.Round(bets / wins, 2)
+    let printPayout desc payout =
+        printfn ""
+        printfn "Payout: %s" desc
+        printfn ""
+        printfn "%A" payout 
 
-    let theoreticalHouseEdge oddsOfWinning winnings oddsOfLosing stake =            
-        let x : decimal = oddsOfWinning * winnings - oddsOfLosing * stake
-        Math.Round(x, 2)
+    let run times f =
+        [ 1 .. times ] 
+        |> Seq.map(fun _ -> f())    
+    
+    let p f x =
+        f x
+        x
 
     [<EntryPoint>]
     let main argv = 
         printfn ""  
 
         let times = 100000
+        let pureSpinResults = run times pureSpin
+        let moreRealisticSpinResults = run 100000 moreRealisticSpin
       
-        pureSpin 
-        |> forceHouseEdge times 
-        |> printHouseEdge "Pure spin"
+        pureSpinResults 
+        |> p (fun x -> x |> houseEdge |> printHouseEdge "Pure spin")
+        |> p (fun x -> x |> payout |> printPayout "Pure spin")
+        |> distribution |> printDistribution "Pure spin"
 
-        moreRealisticSpin 
-        |> forceHouseEdge times 
-        |> printHouseEdge "More realistic spin"
-        
-        pureSpin 
-        |> distribution times 
-        |> printDistribution "Pure spin"
-        
-        moreRealisticSpin 
-        |> distribution times 
-        |> printDistribution "More Realistic spin"
+        moreRealisticSpinResults 
+        |> p (fun x -> x |> houseEdge |> printHouseEdge "More realistic spin")
+        |> p (fun x -> x |> payout |> printPayout "More realistic spin")
+        |> distribution |> printDistribution "More realistic spin"                                    
       
         printfn ""
 

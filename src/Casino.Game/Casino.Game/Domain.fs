@@ -74,11 +74,12 @@ module Domain =
         | Num3 -> Red
         | Num4 | Num5 | Num6 -> Blue    
 
-    let spin : Spin = fun rng mapToBox mapToValue ->                              
-        let box = rng() |> mapToBox
-        let value = box |> mapToValue                       
+    let spin : Spin = 
+        fun rng mapToBox mapToValue ->                              
+            let box = rng() |> mapToBox
+            let value = box |> mapToValue                       
         
-        { Box = box; Value = value }
+            { Box = box; Value = value }
     
     let pureSpin () = spin rng mapToBox mapToValue 
     let moreRealisticSpin () = spin rng mapToBoxWithNearMisses mapToValueWithHouseEdge 
