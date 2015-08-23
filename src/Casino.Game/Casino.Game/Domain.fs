@@ -30,8 +30,8 @@ module Domain =
 
     type RNG = unit -> RandomNumber
     type MapToBox = RandomNumber -> Box
-    type MapToValue = Box -> BoxValue  
-    type Spin = RNG -> MapToBox -> MapToValue -> SpinResult
+    type MapToValue = Box -> BoxValue      
+    type Spin = unit -> SpinResult
 
     let boxes = [ Yellow; Green; Red; Blue; White; Purple ]   
 
@@ -74,13 +74,12 @@ module Domain =
         | Num3 -> Red
         | Num4 | Num5 | Num6 -> Blue    
 
-    let spin : Spin = 
-        fun rng mapToBox mapToValue ->                              
-            let box = rng() |> mapToBox
-            let value = box |> mapToValue                       
+    let spin rng mapToBox mapToValue =                           
+        let box = rng() |> mapToBox
+        let value = box |> mapToValue                       
         
-            { Box = box; Value = value }
+        { Box = box; Value = value }
     
-    let pureSpin () = spin rng mapToBox mapToValue 
-    let moreRealisticSpin () = spin rng mapToBoxWithNearMisses mapToValueWithHouseEdge 
+    let pureSpin : Spin = fun() -> spin rng mapToBox mapToValue 
+    let moreRealisticSpin : Spin = fun() -> spin rng mapToBoxWithNearMisses mapToValueWithHouseEdge 
 
