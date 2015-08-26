@@ -17,11 +17,11 @@ module Math =
 
     let totalWins results =
         results
-            |> Seq.choose (fun x -> 
-                match x.Value with 
-                | Win factor -> Some factor
-                | _ -> None)
-            |> Seq.sumBy (fun f -> 1M * f)  
+        |> Seq.choose (fun x -> 
+            match x.Value with 
+            | Win factor -> Some factor
+            | _ -> None)
+        |> Seq.sumBy (fun f -> 1M * f)  
         
     let payout results =      
         let bets = totalBets results
