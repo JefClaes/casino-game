@@ -83,6 +83,9 @@ module Domain =
         
         { Box = box; Value = value }
     
+    let pureSpinWithHouseEdge : Spin = 
+        fun() -> spin rng mapToBox mapToValueWithHouseEdge
+
     let pureSpin : Spin = 
         fun() -> spin rng mapToBox mapToValue 
 

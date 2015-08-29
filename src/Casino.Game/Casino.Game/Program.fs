@@ -112,18 +112,18 @@ module Program =
         printfn ""  
 
         let times = 3000000
-        let pureSpinResults = run times pureSpin
-        let moreRealisticSpinResults = run times moreRealisticSpin     
-        
-        pureSpinResults 
-        |> p (fun x -> x |> houseEdge |> printHouseEdge "Pure spin")
-        |> p (fun x -> x |> payout |> printPayout "Pure spin")
-        |> distribution |> printDistribution "Pure spin"
 
-        moreRealisticSpinResults 
-        |> p (fun x -> x |> houseEdge |> printHouseEdge "More realistic spin")
-        |> p (fun x -> x |> payout |> printPayout "More realistic spin")
-        |> distribution |> printDistribution "More realistic spin"                                    
+        let spinStats spin desc =
+            let results = run times spin
+
+            results 
+            |> p (fun x -> x |> houseEdge |> printHouseEdge desc)
+            |> p (fun x -> x |> payout |> printPayout desc)
+            |> distribution |> printDistribution desc
+
+        spinStats pureSpin "Pure spin"
+        spinStats pureSpinWithHouseEdge "Pure spin with house edge"
+        spinStats moreRealisticSpin "More realistic spin"                       
       
         printfn ""
 
