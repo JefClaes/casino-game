@@ -33,7 +33,7 @@ module Program =
         boxes |> Seq.iter (fun box -> drawEmptyBox box)
 
     let youLost () = printfn "Unlucky, you lost."
-    let youWon factor = printfn "You won your stake x %A" factor
+    let youWon multiplier = printfn "You won your stake x %A" multiplier
 
     let render spinResult =
         printfn ""
@@ -47,9 +47,9 @@ module Program =
         |> Seq.iter (fun _ -> printfn " ")
 
         match spinResult.Value with
-        | Win factor -> 
+        | Win multiplier -> 
             [1 .. 3] 
-            |> Seq.iter(fun _ -> youWon factor)
+            |> Seq.iter(fun _ -> youWon multiplier)
         | Lose -> youLost()
 
     let rec start (shouldContinue : unit -> bool) =

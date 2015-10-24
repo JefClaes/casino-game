@@ -19,9 +19,9 @@ module Domain =
         | Num6 
  
     type BoxValue = 
-        | Win of WinFactor 
-        | Lose  
-    and WinFactor = decimal  
+        | Win of Multiplier 
+        | Loss
+    and Multiplier = decimal  
 
     type SpinResult = { 
         Box : Box 
@@ -63,12 +63,12 @@ module Domain =
     let mapToValue box =
         match box with
         | Red -> Win 6M
-        | _ -> Lose
+        | _ -> Loss
 
     let mapToValueWithHouseEdge box =
         match box with
         | Red -> Win 5M
-        | _ -> Lose
+        | _ -> Loss
 
     let mapToBoxWithNearMisses rnd =
         match rnd with
