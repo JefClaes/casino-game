@@ -20,7 +20,7 @@ module Program =
             
         printf "[%s] " <| match hit with | true -> "X" | false -> " "
 
-        Console.ResetColor()                        
+        Console.ResetColor()                           
 
     let drawEmptyBox box =         
         Console.ForegroundColor <- systemColor box
@@ -33,16 +33,48 @@ module Program =
         boxes |> Seq.iter (fun box -> drawEmptyBox box)
 
     let youLost () = printfn "Unlucky, you lost."
-    let youWon multiplier = printfn "You won your stake x %A" multiplier
+    let youWon multiplier = printfn "You won your stake x %A" multiplier 
+
+    let sleep () = System.Threading.Thread.Sleep(100)
+    let resetLine () = Console.Write("\r") 
+
+    let drawSpinningLine boxes =        
+        [0 .. ( boxes |> Seq.length ) - 1]        
+        |> Seq.iter (fun i -> 
+            sleep()
+            resetLine()       
+            boxes |> Seq.iteri (fun ii b -> drawBox b (ii = i)))     
+            
+    let drawSpinningLines times boxes =
+        Console.WriteLine()        
+
+        [ 0 .. times - 1 ] |> Seq.iter (fun i -> drawSpinningLine boxes)       
+
+    let drawFinalSpinningLine hitBox boxes =
+        let linelength = boxes |> Seq.length
+        let hitBoxIndex = boxes |> Seq.toArray |> Array.findIndex(fun x -> x = hitBox)                                              
+
+        [0 .. linelength - 1]        
+        |> Seq.iter (fun i -> 
+            sleep() 
+            resetLine()            
+
+            boxes 
+            |> Seq.iteri (fun ii b -> 
+                match b = hitBox && ii < i with
+                | true -> drawBox b true
+                | false -> 
+                    match ii <= hitBoxIndex && ii = i with
+                    | true -> drawBox b true
+                    | false -> drawBox b false                
+            ))   
 
     let render spinResult =
-        printfn ""
-
-        boxes 
-        |> Seq.iter (fun b -> 
-            let hit = (b = spinResult.Box)
-            drawBox b hit)              
+        printfn ""        
             
+        boxes |> drawSpinningLines 1
+        boxes |> drawFinalSpinningLine spinResult.Box
+
         [1 .. 2] 
         |> Seq.iter (fun _ -> printfn " ")
 
@@ -53,7 +85,7 @@ module Program =
         | Lose -> youLost()
 
     let rec start (shouldContinue : unit -> bool) =
-        moreRealisticSpin() |> render
+        pureSpin() |> render
 
         if shouldContinue() then 
             start shouldContinue     
@@ -111,6 +143,11 @@ module Program =
 
         printfn ""  
 
+        start (fun () ->
+            Console.WriteLine()
+            Console.WriteLine("Go again?")            
+            Console.ReadLine() = "yes!")    
+
         let times = 3000000
 
         let spinStats spin desc =
@@ -131,12 +168,7 @@ module Program =
         |> printHouseEdge "Pure spin (theoretical)"        
 
         theoreticalHouseEdge ( 1M / 6M ) 4M ( 5M / 6M ) 1M  
-        |> printHouseEdge "More realistic spin (theoretical)"   
-
-        start (fun () ->
-            Console.WriteLine()
-            Console.WriteLine("Go again?")            
-            Console.ReadLine() = "yes!")                                       
+        |> printHouseEdge "More realistic spin (theoretical)"                                                     
 
         Console.ReadLine() |> ignore
 
